@@ -16,17 +16,19 @@ authorRouter.post("/register", async (req, res, next) => {
     }
   })
 
-authorRouter.get("/",basicAuthMiddleware, adminOnly, async (req, res, next) => {
+authorRouter.get("/", basicAuthMiddleware, adminOnly, async (req, res, next) => {
   try {
-    const query = q2m(req.query);
-    const total = await AuthorModel.countDocuments(query.criteria);
+    //const query = q2m(req.query);
+    //const total = await AuthorModel.countDocuments(query.criteria);
 
-    const authors = await AuthorModel.find(query.criteria, query.options.fields)
-      .skip(query.options.skip)
-      .limit(query.options.limit)
-      .sort(query.options.sort);
+    //const authors = await AuthorModel.find(query.criteria, query.options.fields)
+      //.skip(query.options.skip)
+      //.limit(query.options.limit)
+      //.sort(query.options.sort);
 
-    res.send({ links: query.links("/author", total), authors });
+    //res.send({ links: query.links("/author", total), authors });
+    const author = await AuthorModel.find()
+    res.send(author);
   } catch (error) {
     console.log(error);
     next(error);
@@ -36,6 +38,8 @@ authorRouter.get("/",basicAuthMiddleware, adminOnly, async (req, res, next) => {
 authorRouter.get("/me",basicAuthMiddleware, async (req, res, next) => {
   try {
     // const author = await AuthorModel.findById(req.params.id);
+    console.log(req.body, "this one here")
+    const author = await AuthorModel.find()
     res.send(req.author);
   } catch (error) {
     console.log(error);

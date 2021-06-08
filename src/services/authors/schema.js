@@ -9,7 +9,7 @@ const AuthorSchema = new Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, required: true, enum: ["Admin", "User"] },
-  // articles: [{ type: Schema.Types.ObjectId, required: true, ref: "article" }],
+  articles: [{ type: Schema.Types.ObjectId, required: true, ref: "article" }],
 });
 
 
@@ -26,7 +26,7 @@ AuthorSchema.pre("save", async function (next) {
   AuthorSchema.methods.toJSON = function () {
     const author = this
   
-    const authorObject = user.toObject()
+    const authorObject = author.toObject()
   
     delete authorObject.password
     delete authorObject.__v
@@ -41,8 +41,9 @@ AuthorSchema.pre("save", async function (next) {
       console.log(plainPW)
       console.log(author.password)
       const isMatch = await bcrypt.compare(plainPW, author.password)
+      console.log(isMatch)
       if (isMatch) return author
-      else return null
+      else return null 
     } else return null
   }
 
