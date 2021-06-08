@@ -1,22 +1,22 @@
 import express from "express";
 import q2m from "query-to-mongo";
-
+import { basicAuthMiddleware, adminOnly } from "../../auth/index.js"
 import AuthorModel from "./schema.js";
 
-const router = express.Router();
+const authorRouter = express.Router();
 
-router.post("/", async (req, res, next) => {
-  try {
-    const newAuthor = new AuthorModel(req.body);
+authorRouter.post("/register", async (req, res, next) => {
+    try {
+      const newAuthor = new AuthorModel(req.body)
+      const { _id } = await newAuthor.save()
+  
+      res.status(201).send(_id)
+    } catch (error) {
+      next(error)
+    }
+  })
 
-    const { _id } = await newAuthor.save();
-    res.status(201).send(_id);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.get("/", async (req, res, next) => {
+authorRouter.get("/",basicAuthMiddleware, adminOnly, async (req, res, next) => {
   try {
     const query = q2m(req.query);
     const total = await AuthorModel.countDocuments(query.criteria);
@@ -33,28 +33,48 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.get("/:id", async (req, res, next) => {
+authorRouter.get("/me",basicAuthMiddleware, async (req, res, next) => {
   try {
-    const author = await AuthorModel.findById(req.params.id);
-    res.send(author);
+    // const author = await AuthorModel.findById(req.params.id);
+    res.send(req.author);
   } catch (error) {
     console.log(error);
     next(error);
   }
 });
 
-router.put("/:id", async (req, res, next) => {
+authorRouter.put("/me",basicAuthMiddleware, async (req, res, next) => {
   try {
-    const modifiedAuthor = await AuthorModel.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        runValidators: true,
-        new: true,
-      }
-    );
-    if (modifiedAuthor) {
-      res.send(modifiedAuthor);
+
+    //const modifiedAuthor = await AuthorModel.findByIdAndUpdate(
+      //req.params.id,
+      //req.body,
+      //{
+        //runValidators: true,
+        //new: true,
+     // }
+     const update = Object.keys(req.body)
+     update.forEach(u=>(req.author[u]= req.author[u] ))
+     await req.author.save()
+     req.status(204).send()
+    // );
+    // if (modifiedAuthor) {
+     // res.send(modifiedAuthor);
+    //} else {
+    //  next();
+   // }
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
+
+authorRouter.delete("/", basicAuthMiddleware, async (req, res, next) => {
+  try {
+    //const author = await AuthorModel.findByIdAndDelete(req.params.id);
+    await req.author.deleteOne()
+    if (req.author) {
+      res.send("Deleted");
     } else {
       next();
     }
@@ -64,18 +84,4 @@ router.put("/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
-  try {
-    const author = await AuthorModel.findByIdAndDelete(req.params.id);
-    if (author) {
-      res.send(author);
-    } else {
-      next();
-    }
-  } catch (error) {
-    console.log(error);
-    next(error);
-  }
-});
-
-export default router;
+export default authorRouter;
