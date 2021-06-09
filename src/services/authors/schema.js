@@ -8,7 +8,7 @@ const AuthorSchema = new Schema({
   surname: { type: String, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
-  role: { type: String, required: true, enum: ["Admin", "User"] },
+  role: { type: String, required: true, enum: ["Admin", "Writer"] },
   articles: [{ type: Schema.Types.ObjectId, required: true, ref: "article" }],
 });
 
@@ -21,7 +21,7 @@ AuthorSchema.pre("save", async function (next) {
         newAuthor.password = await bcrypt.hash(plainPW, 10)
     }
     next()
-  })
+   })
 
   AuthorSchema.methods.toJSON = function () {
     const author = this
@@ -41,10 +41,8 @@ AuthorSchema.pre("save", async function (next) {
       console.log(plainPW)
       console.log(author.password)
       const isMatch = await bcrypt.compare(plainPW, author.password)
-      console.log(isMatch)
       if (isMatch) return author
-      else return null 
+      else return null
     } else return null
   }
-
 export default model("Author", AuthorSchema);

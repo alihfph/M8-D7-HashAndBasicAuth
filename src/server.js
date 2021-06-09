@@ -1,7 +1,7 @@
 import express from "express"
 import mongoose from "mongoose"
 import listEndpoints from "express-list-endpoints"
-import usersRouter from "./services/users/index.js" 
+import articlesRouter from "./services/articles/index.js" 
 import authorRouter from "./services/authors/index.js";
 import {
     notFoundErrorHandler,
@@ -15,7 +15,7 @@ const PORT = process.env.PORT
 server.use(express.json())
 
 
-server.use("/articles", usersRouter);
+server.use("/articles", articlesRouter);
 server.use("/authors", authorRouter);
 
 server.use(badRequestErrorHandler);
@@ -24,7 +24,7 @@ server.use(catchAllErrorHandler);
 console.table(listEndpoints(server))
 
 mongoose.connect(process.env.MONGO_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true })
-
+console.log(process.env.MONGO_CONNECTION)
 mongoose.connection.on("connected", () => {
   console.log("Successfully connected to Mongo!")
   server.listen(PORT, () => {

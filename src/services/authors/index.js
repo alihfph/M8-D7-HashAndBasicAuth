@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose"
 import q2m from "query-to-mongo";
 import { basicAuthMiddleware, adminOnly } from "../../auth/index.js"
 import AuthorModel from "./schema.js";
@@ -8,10 +9,12 @@ const authorRouter = express.Router();
 authorRouter.post("/register", async (req, res, next) => {
     try {
       const newAuthor = new AuthorModel(req.body)
-      const { _id } = await newAuthor.save()
+      console.log(newAuthor)
+     const {_id} = await newAuthor.save()
   
-      res.status(201).send(_id)
+      res.send(_id).status(2001)
     } catch (error) {
+      console.log(error, "this is error")
       next(error)
     }
   })
